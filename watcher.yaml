@@ -1,0 +1,5 @@
+DEBUG_MODE: false
+DEBUG_LOG_FILE: "/var/log/nginx_log_reporter.log"
+REPORT_RATE:
+  MINUTE_PERIOD_ERROR_COUNT: 30 #1min 30次
+  CONTINUOUS_ERROR_COUNT: 5 #连续5次就推送

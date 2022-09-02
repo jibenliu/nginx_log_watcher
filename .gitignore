@@ -1,0 +1,7 @@
+vendor
+.git
+.idea
+go.sum
+.DS_Store
+main
+main.exe
