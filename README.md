@@ -25,8 +25,13 @@ http{
                     '}';
   ...
   
-  access_log syslog:server=127.0.0.1:9999,facility=local7,tag=nginx_access_log,severity=info;
                     
+}
+
+server{
+  ...
+  access_log syslog:server=127.0.0.1:9999,facility=local7,tag=nginx_access_log,severity=info json;
+  ...
 }
 ```
 
