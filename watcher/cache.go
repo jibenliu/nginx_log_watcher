@@ -92,9 +92,9 @@ func (h *hostCache) getTopTagError(eType errorType, top int) map[string]int {
 }
 
 type errorCount struct {
-	mapper   map[string]*countNode //实现O(1)的读取速度
-	rw       sync.RWMutex
-	nodeTail *countNode //存储顶点指针
+	mapper  map[string]*countNode //实现O(1)的读取速度
+	rw      sync.RWMutex
+	topNode *countNode //存储顶部指针
 }
 
 type countNode struct {
@@ -114,12 +114,12 @@ func (i *errorCount) NodeIncrement(tag string) {
 			tag:   tag,
 			count: 1,
 		}
-		tail := i.nodeTail
-		i.nodeTail = node
-		if tail != nil {
-			tail.next = node
-			node.pre = tail
+		top := i.topNode
+		for top.next != nil { //获取最后一个元素
+			top = top.next
 		}
+		top.next = node
+		node.pre = top
 		i.mapper[tag] = node //追加到next节点上
 	} else {
 		i.mapper[tag].rw.Lock()
@@ -144,10 +144,10 @@ func (i *errorCount) GetCount(tag string) int {
 func (i *errorCount) GetTopN(in int) map[string]int {
 	var ret = make(map[string]int)
 	var index = 1
-	tail := i.nodeTail
-	for tail != nil && index <= in {
-		ret[i.nodeTail.tag] = i.nodeTail.count
-		tail = i.nodeTail.next
+	top := i.topNode
+	for top != nil && index <= in {
+		ret[top.tag] = top.count
+		top = top.next
 		index++
 	}
 	return ret
@@ -155,9 +155,9 @@ func (i *errorCount) GetTopN(in int) map[string]int {
 
 func newErrorCount() *errorCount {
 	return &errorCount{
-		rw:       sync.RWMutex{},
-		mapper:   make(map[string]*countNode),
-		nodeTail: nil,
+		rw:      sync.RWMutex{},
+		mapper:  make(map[string]*countNode),
+		topNode: nil,
 	}
 }
 
